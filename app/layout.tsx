@@ -22,6 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#0E1B2A" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
         <CartProvider>

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://json.schemastore.org/vercelconfig.json",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "framework": "nextjs"
+}

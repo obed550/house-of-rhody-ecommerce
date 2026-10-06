@@ -7,7 +7,6 @@ const ADMIN_CONTACT = '0599861653';
 
 export async function GET(req: Request) {
   try {
-    // Verify admin authentication
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
@@ -21,10 +20,17 @@ export async function GET(req: Request) {
     }
 
     // Get dashboard stats
+    const totalOrders = await prisma.order.count();
+    const totalCustomers = await prisma.user.count({ where: { role: 'USER' } });
+    const paidOrders = await prisma.order.count({ where: { status: 'PAID' } });
+
     const orders = await prisma.order.findMany({
-      include: { items: true },
+      include: {
+        items: { include: { product: true } },
+        user: true,
+      },
       orderBy: { createdAt: 'desc' },
-      take: 10,
+      take: 20,
     });
 
     const totalSales = orders
@@ -35,26 +41,24 @@ export async function GET(req: Request) {
     today.setHours(0, 0, 0, 0);
     const ordersToday = orders.filter((o) => o.createdAt >= today).length;
 
-    const customers = await prisma.user.count({ where: { role: 'USER' } });
-
-    const pendingPayouts = orders
-      .filter((o) => o.status === 'PAID')
-      .reduce((sum, o) => sum + Math.round(o.total * 0.95), 0);
-
     return NextResponse.json({
-      totalSales,
-      ordersToday,
-      totalCustomers: customers,
-      pendingPayouts,
+      stats: {
+        totalSales: Math.floor(totalSales / 100),
+        ordersToday,
+        totalCustomers,
+        totalOrders,
+        paidOrders,
+      },
       recentOrders: orders.map((o) => ({
         id: o.id,
-        customerName: o.contact,
-        total: o.total,
+        customerName: o.user?.name || o.contact,
+        total: Math.floor(o.total / 100),
         status: o.status,
+        date: o.createdAt.toISOString().split('T')[0],
       })),
     });
   } catch (error) {
     console.error('Dashboard error:', error);
-    return NextResponse.json({ error: 'Failed to fetch dashboard data.' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch dashboard data' }, { status: 500 });
   }
 }

@@ -1,218 +1,255 @@
-# House of Rhody - Premium Fashion Ecommerce
+# 🏠 House of Rhody E-Commerce Platform
 
-> A complete, production-ready clothing store with admin dashboard, SMS OTP verification, and multi-payment integration.
+## Overview
 
-## 🎨 Features
+A premium e-commerce platform for **House of Rhody**, selling fashion for all ages and family sizes.
 
-### Customer Storefront
-- ✨ Luxury brand design (gold, cream, navy, blush)
-- 🛍️ Product catalog with filtering by category
-- 👤 User signup with SMS OTP verification
-- 🛒 Shopping cart with persistent storage
-- 💳 Secure checkout with multiple payment methods
-- 📦 Order tracking and status updates
-- 📱 Mobile-responsive design
-- ⚡ PWA installable app support
+- 👗 Women, Men, Kids, Teens, Plus Size, Adults
+- 💳 Payment integration (Paystack)
+- 📱 Responsive mobile-first design
+- 🔐 Secure admin panel (Rhoda only)
+- 📊 Order & customer management
+- 🎨 Modern UI with Tailwind CSS
 
-### Admin Dashboard
-- 📊 Sales analytics and KPIs
-- 📦 Product management (CRUD)
-- 📋 Order management and tracking
-- 👥 Customer management
-- ⚙️ Payment settings (Paystack, Stripe, Flutterwave)
-- 📈 Real-time statistics
-
-### Payment Integration
-- 💳 Paystack (primary)
-- 🏦 Stripe
-- 🌊 Flutterwave
-- 💰 PayPal
-- 🏧 Bank transfer
-
-### Authentication
-- 📱 SMS OTP verification via Twilio
-- 🔐 JWT-based authentication
-- 🔑 Secure password hashing
-- 👨‍💼 Role-based access control (Admin/User)
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- PostgreSQL database
-- Twilio account (for SMS)
-- Paystack account (for payments)
+- PostgreSQL 12+
+- npm or yarn
 
-### Installation
+### Setup
 
-1. **Clone and install**
-   ```bash
-   git clone https://github.com/yourusername/house-of-rhody.git
-   cd house-of-rhody
-   npm install
-   ```
+```bash
+# 1. Clone and install
+git clone <repo-url>
+cd house-of-rhody-ecommerce
+npm install
 
-2. **Setup environment**
-   ```bash
-   cp .env.example .env.local
-   ```
-   Fill in your credentials:
-   ```env
-   DATABASE_URL="postgresql://user:pass@localhost:5432/house_of_rhody"
-   NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY="pk_test_..."
-   PAYSTACK_SECRET_KEY="sk_test_..."
-   TWILIO_ACCOUNT_SID="your_sid"
-   TWILIO_AUTH_TOKEN="your_token"
-   JWT_SECRET="your_secret_key"
-   ```
+# 2. Configure environment
+cp .env.example .env.local
+# Edit .env.local with your database connection
 
-3. **Setup database**
-   ```bash
-   npx prisma migrate dev
-   npx prisma db seed
-   ```
+# 3. Setup database
+npm run db:migrate
+npm run db:seed  # Creates Rhoda admin + demo products
 
-4. **Start development**
-   ```bash
-   npm run dev
-   ```
-   Open http://localhost:3000
+# 4. Run development server
+npm run dev
+```
 
-## 📂 Project Structure
+Open **http://localhost:3000**
+
+---
+
+## 🔐 Login Credentials
+
+### Admin Access (RESTRICTED - Rhoda Only)
+- **Phone:** `0599861653`
+- **Password:** `RHODA@`
+- **URL:** http://localhost:3000/admin
+
+### Demo Customer
+- **Phone:** `+2348123456789`
+- **Password:** `demo123`
+
+---
+
+## 📊 Admin Dashboard Features
+
+✅ **Dashboard Stats**
+- Total sales revenue
+- Orders today
+- Total customers
+- Paid vs pending orders
+
+✅ **Recent Orders Table**
+- Order tracking
+- Customer details
+- Payment status
+- Order dates
+
+✅ **Security**
+- Only Rhoda can access
+- Admin logins hidden from audit logs
+- JWT token authentication
+- Protected routes with middleware
+
+---
+
+## 🛍️ Customer Features
+
+- Browse products by category
+- Add to cart functionality
+- Cart persistence (localStorage)
+- Checkout flow
+- Order history
+- Profile management
+
+---
+
+## 📁 Project Structure
 
 ```
-house-of-rhody/
+house-of-rhody-ecommerce/
 ├── app/
-│   ├── api/              # API routes
-│   ├── admin/            # Admin dashboard
-│   ├── shop/             # Product listing
-│   ├── product/          # Product detail
-│   ├── checkout/         # Checkout flow
-│   ├── cart/             # Shopping cart
-│   ├── signup/           # User registration
-│   ├── login/            # User login
-│   └── context/          # React context (cart)
-├── components/           # Reusable components
+│   ├── admin/              # Admin dashboard (protected)
+│   ├── api/
+│   │   ├── auth/          # Login/signup
+│   │   └── admin/         # Admin endpoints
+│   ├── login/             # Login page
+│   ├── shop/              # Products listing
+│   ├── context/           # Cart context
+│   └── layout.tsx         # Root layout
+├── components/            # Reusable React components
 ├── lib/
-│   ├── prisma.ts        # Database client
-│   ├── auth.ts          # Auth utilities
-│   ├── payments.ts      # Payment utilities
-│   └── twilio.ts        # SMS utilities
+│   ├── auth.ts           # JWT & password hashing
+│   ├── prisma.ts         # Database client
+│   └── payments.ts       # Paystack integration
 ├── prisma/
-│   ├── schema.prisma    # Database schema
-│   └── seed.ts          # Database seeding
-├── public/              # Static assets
-└── DEPLOYMENT.md        # Deployment guide
+│   ├── schema.prisma     # Database schema
+│   └── seed.ts           # Initial data
+├── middleware.ts          # Route protection
+├── package.json
+├── tsconfig.json
+├── tailwind.config.ts
+└── QUICK_START.md         # Setup guide
 ```
 
-## 🔌 API Endpoints
+---
 
-### Authentication
-- `POST /api/auth/signup` - Register user
-- `POST /api/auth/login` - Login user
-- `POST /api/auth/verify-otp` - Verify SMS OTP
-- `GET /api/auth/me` - Get current user
+## 🛠️ Available Commands
 
-### Products
-- `GET /api/products` - List all products
-- `GET /api/products/[id]` - Get product details
-- `POST /api/admin/products` - Create product (admin)
-- `PUT /api/products/[id]` - Update product (admin)
-- `DELETE /api/products/[id]` - Delete product (admin)
+```bash
+# Development
+npm run dev           # Start dev server on :3000
+npm run build         # Build for production
+npm start             # Start production server
 
-### Orders
-- `GET /api/orders` - List user orders
-- `POST /api/orders` - Create order
-- `GET /api/admin/orders` - List all orders (admin)
+# Database
+npm run db:migrate    # Create/run migrations
+npm run db:seed       # Seed initial data
+npm run db:studio     # Open Prisma Studio GUI
 
-### Payments
-- `POST /api/payments/paystack` - Initialize Paystack payment
-- `POST /api/payments/paystack/verify` - Verify payment
+# Code Quality
+npm run lint          # ESLint checks
+```
 
-### Admin
-- `GET /api/admin/dashboard` - Dashboard statistics
-- `POST /api/admin/settings` - Update settings
+---
 
-## 🎯 Default Credentials
+## 🔒 Security Features
 
-**Admin Account:**
-- Phone: `+2348000000000`
-- Password: `admin123`
+✅ **Authentication**
+- JWT token-based (7-day expiry)
+- Bcrypt password hashing
+- Secure HTTP-only cookies
 
-**Demo Customer:**
-- Phone: `+2348123456789`
-- Password: `demo123`
+✅ **Authorization**
+- Role-based access (ADMIN/USER)
+- Rhoda is the only admin
+- Protected admin routes
+- Middleware validation
+
+✅ **Audit Logging**
+- Customer login tracking
+- Order/payment events
+- **Admin logins hidden** (privacy)
+
+✅ **Data Protection**
+- Prisma ORM (SQL injection prevention)
+- Environment variables for secrets
+- Encrypted passwords
+
+---
 
 ## 🌐 Deployment
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for:
-- Vercel + EdgeOne setup
-- Railway deployment
-- Docker containerization
-- Environment configuration
-- Production checklist
-
-## 🛠️ Technologies
-
-- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: PostgreSQL
-- **Auth**: JWT, Twilio SMS
-- **Payments**: Paystack, Stripe, Flutterwave
-- **Styling**: Tailwind CSS with custom brand colors
-- **PWA**: Web App Manifest, Service Worker ready
-
-## 📱 Brand Colors
-
-```css
---gold: #C9A227
---yellow: #F4D35E
---cream: #F7F1E7
---blush: #EFC9D1
---brown: #4A2E1F
---navy: #0E1B2A
+### Vercel (Recommended)
+```bash
+git push origin main
+# Connect at https://vercel.com
+# Auto-deploy on every push
 ```
 
-## 🔐 Security
+### Railway
+- Connect GitHub repo
+- Add PostgreSQL plugin
+- Auto-deploy on push
 
-- ✅ Passwords hashed with bcrypt
-- ✅ JWT tokens for authentication
-- ✅ Environment variables for secrets
-- ✅ SQL injection prevention (Prisma)
-- ✅ CORS configured
-- ✅ Rate limiting ready
-- ✅ OTP expiry (5 minutes)
+### Docker
+```bash
+docker build -t house-of-rhody .
+docker run -p 3000:3000 house-of-rhody
+```
 
-## 📊 Database Schema
+---
 
-- **User**: Customers and admin
-- **Product**: Clothing items
-- **Category**: Product categories
-- **Order**: Customer orders
-- **OrderItem**: Items in each order
-- **Payment**: Payment records
-- **Address**: Delivery addresses
+## 📦 Tech Stack
 
-## 🚀 Performance
+- **Frontend:** Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes, Node.js
+- **Database:** PostgreSQL, Prisma ORM
+- **Auth:** JWT, Bcrypt
+- **Payments:** Paystack
+- **SMS:** Twilio (optional)
+- **Hosting:** Vercel, Railway, Docker
 
-- Next.js server-side rendering
-- Image optimization with Next.js Image
-- Database query optimization with Prisma
-- Redis-ready session storage
-- CDN-compatible asset structure
-- PWA for offline capability
+---
 
-## 📝 License
+## 📝 Environment Variables
 
-MIT License - feel free to use for commercial projects.
+See `.env.example` for all required variables:
 
-## 🤝 Support
+```env
+DATABASE_URL="..."
+JWT_SECRET="..."
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY="..."
+PAYSTACK_SECRET_KEY="..."
+TWILIO_ACCOUNT_SID="..."
+TWILIO_AUTH_TOKEN="..."
+```
+
+---
+
+## 🐛 Troubleshooting
+
+**Cannot connect to database?**
+```bash
+# Make sure PostgreSQL is running
+docker run -p 5432:5432 postgres:15 &
+```
+
+**Dependencies not installing?**
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Need to reset database?**
+```bash
+npx prisma migrate reset
+npm run db:seed
+```
+
+---
+
+## 📞 Support
 
 For issues or questions:
-1. Check DEPLOYMENT.md
-2. Review API documentation in code
-3. Check Twilio, Paystack, and Prisma docs
+1. Check `.env.local` is configured
+2. Verify PostgreSQL is running
+3. Check browser console (F12) for errors
+4. Review logs in terminal
 
-## 🎉 Ready to Launch
+---
 
-Your House of Rhody store is production-ready. Deploy to Vercel, Railway, or your preferred host and start selling!
+## 📄 License
+
+Private - House of Rhody
+
+---
+
+**Built with ❤️ for House of Rhody**  
+*Premium Fashion for Every Age*

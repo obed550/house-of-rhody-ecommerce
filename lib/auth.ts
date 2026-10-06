@@ -42,7 +42,7 @@ export async function setAuthCookie(token: string) {
   });
 }
 
-// Check if user is admin
-export function isAdminUser(contact: string) {
+// Check if user is Rhoda (the only admin)
+export function isRhodaAdmin(contact: string) {
   return contact === ADMIN_CONTACT;
 }

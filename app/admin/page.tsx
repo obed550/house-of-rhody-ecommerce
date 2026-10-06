@@ -1,42 +1,48 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { AdminGuard } from '@/components/AdminGuard';
 
-type DashboardStats = {
-  totalSales: number;
-  ordersToday: number;
-  totalCustomers: number;
-  pendingPayouts: number;
-  recentOrders: any[];
-};
+interface DashboardData {
+  stats: {
+    totalSales: number;
+    ordersToday: number;
+    totalCustomers: number;
+    totalOrders: number;
+    paidOrders: number;
+  };
+  recentOrders: Array<{
+    id: string;
+    customerName: string;
+    total: number;
+    status: string;
+    date: string;
+  }>;
+}
 
-export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalSales: 0,
-    ordersToday: 0,
-    totalCustomers: 0,
-    pendingPayouts: 0,
-    recentOrders: [],
-  });
-  const [paystackKeys, setPaystackKeys] = useState({
-    publicKey: '',
-    secretKey: '',
-  });
+function AdminDashboardContent() {
+  const router = useRouter();
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      setUser(JSON.parse(userStr));
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const res = await fetch('/api/admin/dashboard');
-        const data = await res.json();
-        setStats(data);
-        setPaystackKeys({
-          publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
-          secretKey: process.env.PAYSTACK_SECRET_KEY || '',
-        });
+        if (!res.ok) throw new Error('Failed to fetch');
+        const json = await res.json();
+        setData(json);
       } catch (error) {
-        console.error('Failed to load dashboard:', error);
+        console.error('Error loading dashboard:', error);
       } finally {
         setLoading(false);
       }
@@ -45,150 +51,125 @@ export default function AdminDashboardPage() {
     fetchDashboard();
   }, []);
 
-  const handleSaveKeys = async () => {
-    const res = await fetch('/api/admin/settings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paystackKeys),
-    });
-
-    if (res.ok) {
-      alert('Payment keys saved successfully!');
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    router.push('/login');
   };
 
   return (
-    <main className="min-h-screen bg-[#F7F1E7] p-6 text-[#0E1B2A]">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-[#F7F1E7]">
+      {/* Header */}
+      <header className="bg-[#0E1B2A] text-[#F7F1E7] px-4 py-4 shadow-lg sticky top-0 z-50">
+        <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[#C9A227]">Admin panel</p>
-            <h1 className="font-display text-5xl font-black">Dashboard</h1>
+            <h1 className="text-2xl font-black">🏠 Admin Dashboard</h1>
+            <p className="text-sm text-[#C9A227]">House of Rhody</p>
           </div>
-          <Link href="/" className="rounded-full bg-[#0E1B2A] px-5 py-3 font-bold text-[#F7F1E7]">
-            View storefront
-          </Link>
+          <div className="flex items-center gap-4">
+            <span className="text-sm">👋 {user?.name || 'Admin'}</span>
+            <button
+              onClick={handleLogout}
+              className="text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
+      </header>
 
-        {/* Stats grid */}
-        <div className="mb-8 grid gap-4 md:grid-cols-4">
-          {[
-            { label: 'Total sales', value: `₦${stats.totalSales.toLocaleString()}` },
-            { label: 'Orders today', value: stats.ordersToday },
-            { label: 'Customers', value: stats.totalCustomers },
-            { label: 'Pending payouts', value: `₦${stats.pendingPayouts.toLocaleString()}` },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-[1.5rem] bg-white p-5 shadow-md">
-              <div className="text-sm text-[#4A2E1F]">{stat.label}</div>
-              <div className="mt-2 text-3xl font-black">{stat.value}</div>
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-[#4A2E1F] font-semibold">⏳ Loading dashboard...</p>
+          </div>
+        ) : data ? (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+              <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-[#C9A227]">
+                <p className="text-[#4A2E1F] text-sm font-semibold mb-2">Total Sales</p>
+                <p className="text-3xl font-black text-[#0E1B2A]">₦{data.stats.totalSales.toLocaleString()}</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-green-500">
+                <p className="text-[#4A2E1F] text-sm font-semibold mb-2">Orders Today</p>
+                <p className="text-3xl font-black text-green-600">{data.stats.ordersToday}</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-blue-500">
+                <p className="text-[#4A2E1F] text-sm font-semibold mb-2">Total Orders</p>
+                <p className="text-3xl font-black text-blue-600">{data.stats.totalOrders}</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-purple-500">
+                <p className="text-[#4A2E1F] text-sm font-semibold mb-2">Customers</p>
+                <p className="text-3xl font-black text-purple-600">{data.stats.totalCustomers}</p>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-md border-l-4 border-orange-500">
+                <p className="text-[#4A2E1F] text-sm font-semibold mb-2">Paid Orders</p>
+                <p className="text-3xl font-black text-orange-600">{data.stats.paidOrders}</p>
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Main content grid */}
-        <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-          {/* Recent orders section */}
-          <section className="rounded-[1.5rem] bg-white p-6 shadow-md">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Recent orders</h2>
-              <Link href="/admin/orders" className="text-[#C9A227] underline underline-offset-4">
-                View all
-              </Link>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="border-b border-[#C9A227]/20">
-                  <tr>
-                    <th className="text-left font-bold">Order ID</th>
-                    <th className="text-left font-bold">Customer</th>
-                    <th className="text-left font-bold">Status</th>
-                    <th className="text-right font-bold">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-[#C9A227]/10">
-                      <td className="py-3">
-                        <span className="font-mono text-sm font-bold">{order.id}</span>
-                      </td>
-                      <td className="py-3">{order.customerName || order.contact}</td>
-                      <td className="py-3">
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-bold ${
-                            order.status === 'PAID'
-                              ? 'bg-green-100 text-green-800'
-                              : order.status === 'SHIPPED'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="py-3 text-right font-bold">₦{order.total.toLocaleString()}</td>
+            {/* Recent Orders Table */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="bg-[#0E1B2A] text-[#F7F1E7] px-6 py-4">
+                <h2 className="text-lg font-bold">📋 Recent Orders</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-[#F7F1E7] border-b-2 border-[#C9A227]">
+                    <tr>
+                      <th className="px-6 py-3 text-left font-semibold text-[#4A2E1F]">Order ID</th>
+                      <th className="px-6 py-3 text-left font-semibold text-[#4A2E1F]">Customer</th>
+                      <th className="px-6 py-3 text-left font-semibold text-[#4A2E1F]">Date</th>
+                      <th className="px-6 py-3 text-left font-semibold text-[#4A2E1F]">Amount</th>
+                      <th className="px-6 py-3 text-left font-semibold text-[#4A2E1F]">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* Settings sidebar */}
-          <aside className="space-y-6">
-            {/* Payment settings */}
-            <div className="rounded-[1.5rem] bg-[#0E1B2A] p-6 text-[#F7F1E7] shadow-md">
-              <h3 className="mb-4 text-xl font-bold">Payment settings</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-2 block text-sm text-[#C9A227]">Paystack public key</label>
-                  <input
-                    value={paystackKeys.publicKey}
-                    onChange={(e) => setPaystackKeys({ ...paystackKeys, publicKey: e.target.value })}
-                    className="w-full rounded-lg border border-white/20 bg-white/5 p-2 text-white"
-                    placeholder="pk_test_..."
-                  />
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm text-[#C9A227]">Paystack secret key</label>
-                  <input
-                    value={paystackKeys.secretKey}
-                    onChange={(e) => setPaystackKeys({ ...paystackKeys, secretKey: e.target.value })}
-                    className="w-full rounded-lg border border-white/20 bg-white/5 p-2 text-white"
-                    placeholder="sk_test_..."
-                    type="password"
-                  />
-                </div>
-                <button
-                  onClick={handleSaveKeys}
-                  className="w-full rounded-full bg-[#C9A227] px-4 py-2 font-bold text-[#0E1B2A]"
-                >
-                  Save keys
-                </button>
+                  </thead>
+                  <tbody>
+                    {data.recentOrders.map((order, idx) => (
+                      <tr key={order.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-[#F7F1E7]'}>
+                        <td className="px-6 py-4 font-mono text-xs text-[#4A2E1F]">
+                          {order.id.slice(0, 8)}
+                        </td>
+                        <td className="px-6 py-4 text-[#4A2E1F]">{order.customerName}</td>
+                        <td className="px-6 py-4 text-[#4A2E1F]">{order.date}</td>
+                        <td className="px-6 py-4 font-bold text-[#0E1B2A]">₦{order.total.toLocaleString()}</td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              order.status === 'PAID'
+                                ? 'bg-green-100 text-green-700'
+                                : order.status === 'SHIPPED'
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : order.status === 'DELIVERED'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-yellow-100 text-yellow-700'
+                            }`}
+                          >
+                            {order.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-
-            {/* Quick actions */}
-            <div className="rounded-[1.5rem] bg-white p-6 shadow-md">
-              <h3 className="mb-4 text-xl font-bold">Quick actions</h3>
-              <div className="space-y-3">
-                <Link
-                  href="/admin/products"
-                  className="block rounded-full bg-[#C9A227] px-4 py-3 text-center font-bold text-[#0E1B2A]"
-                >
-                  Manage products
-                </Link>
-                <Link
-                  href="/admin/orders"
-                  className="block rounded-full bg-[#0E1B2A] px-4 py-3 text-center font-bold text-[#F7F1E7]"
-                >
-                  View all orders
-                </Link>
-              </div>
-            </div>
-          </aside>
-        </div>
+          </>
+        ) : (
+          <div className="text-center py-12 bg-white rounded-xl">
+            <p className="text-red-600 font-semibold">❌ Failed to load dashboard</p>
+          </div>
+        )}
       </div>
-    </main>
+    </div>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <AdminGuard>
+      <AdminDashboardContent />
+    </AdminGuard>
   );
 }
