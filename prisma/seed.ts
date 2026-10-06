@@ -43,6 +43,35 @@ async function main() {
     create: { name: 'Adults' },
   });
 
+  // Create ADMIN user - Rhoda
+  const adminPassword = await bcrypt.hash('RHODA@', 10);
+  const admin = await prisma.user.upsert({
+    where: { contact: '0599861653' },
+    update: {},
+    create: {
+      name: 'Rhoda',
+      contact: '0599861653',
+      passwordHash: adminPassword,
+      role: 'ADMIN',
+      isVerified: true,
+    },
+  });
+  console.log('✅ Admin user created: Rhoda');
+
+  // Create demo customer
+  const demoPassword = await bcrypt.hash('demo123', 10);
+  const customer1 = await prisma.user.upsert({
+    where: { contact: '+2348123456789' },
+    update: {},
+    create: {
+      name: 'Ada Nwosu',
+      contact: '+2348123456789',
+      passwordHash: demoPassword,
+      role: 'USER',
+      isVerified: true,
+    },
+  });
+
   // Create products
   const products = [
     {
@@ -81,7 +110,7 @@ async function main() {
       description: 'Elegant dramatic look for special occasions and nights out. Luxurious fabric.',
       price: 64000,
       stock: 7,
-      image: '🌸',
+      image: '🔮',
       featured: false,
       categoryId: plusSize.id,
     },
@@ -152,110 +181,6 @@ async function main() {
       where: { slug: product.slug },
       update: {},
       create: product,
-    });
-  }
-
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  await prisma.user.upsert({
-    where: { contact: '+2348000000000' },
-    update: {},
-    create: {
-      name: 'Admin User',
-      contact: '+2348000000000',
-      passwordHash: adminPassword,
-      role: 'ADMIN',
-      isVerified: true,
-    },
-  });
-
-  // Create demo customers
-  const demoPassword = await bcrypt.hash('demo123', 10);
-  const customer1 = await prisma.user.upsert({
-    where: { contact: '+2348123456789' },
-    update: {},
-    create: {
-      name: 'Ada Nwosu',
-      contact: '+2348123456789',
-      passwordHash: demoPassword,
-      role: 'USER',
-      isVerified: true,
-    },
-  });
-
-  const customer2 = await prisma.user.upsert({
-    where: { contact: '+2348034567890' },
-    update: {},
-    create: {
-      name: 'Tobi Eze',
-      contact: '+2348034567890',
-      passwordHash: demoPassword,
-      role: 'USER',
-      isVerified: true,
-    },
-  });
-
-  // Create demo orders
-  const productIds = await prisma.product.findMany({
-    select: { id: true },
-    take: 6,
-  });
-
-  if (productIds.length > 0) {
-    const order1 = await prisma.order.create({
-      data: {
-        userId: customer1.id,
-        contact: customer1.contact,
-        total: 96000,
-        status: 'PAID',
-        items: {
-          create: [
-            {
-              productId: productIds[1].id,
-              quantity: 2,
-              price: 48000,
-            },
-          ],
-        },
-      },
-    });
-
-    await prisma.payment.create({
-      data: {
-        orderId: order1.id,
-        provider: 'paystack',
-        reference: `PAY-${Date.now()}`,
-        amount: 96000,
-        status: 'SUCCESS',
-      },
-    });
-
-    const order2 = await prisma.order.create({
-      data: {
-        userId: customer2.id,
-        contact: customer2.contact,
-        total: 55000,
-        status: 'SHIPPED',
-        items: {
-          create: [
-            {
-              productId: productIds[2].id,
-              quantity: 1,
-              price: 55000,
-            },
-          ],
-        },
-      },
-    });
-
-    await prisma.payment.create({
-      data: {
-        orderId: order2.id,
-        provider: 'paystack',
-        reference: `PAY-${Date.now() + 1}`,
-        amount: 55000,
-        status: 'SUCCESS',
-      },
     });
   }
 

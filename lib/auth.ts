@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 
 const SECRET = process.env.JWT_SECRET || 'your_secret_key';
+const ADMIN_CONTACT = '0599861653';
 
 export async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
@@ -39,4 +40,9 @@ export async function setAuthCookie(token: string) {
     sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60,
   });
+}
+
+// Check if user is admin
+export function isAdminUser(contact: string) {
+  return contact === ADMIN_CONTACT;
 }

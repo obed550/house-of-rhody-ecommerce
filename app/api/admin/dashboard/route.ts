@@ -1,8 +1,26 @@
 import { prisma } from '@/lib/prisma';
+import { verifyToken } from '@/lib/auth';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
-export async function GET() {
+const ADMIN_CONTACT = '0599861653';
+
+export async function GET(req: Request) {
   try {
+    // Verify admin authentication
+    const cookieStore = await cookies();
+    const token = cookieStore.get('auth_token')?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const decoded = verifyToken(token) as any;
+    if (!decoded || decoded.role !== 'ADMIN' || decoded.contact !== ADMIN_CONTACT) {
+      return NextResponse.json({ error: 'Admin access denied' }, { status: 403 });
+    }
+
+    // Get dashboard stats
     const orders = await prisma.order.findMany({
       include: { items: true },
       orderBy: { createdAt: 'desc' },
@@ -36,6 +54,7 @@ export async function GET() {
       })),
     });
   } catch (error) {
+    console.error('Dashboard error:', error);
     return NextResponse.json({ error: 'Failed to fetch dashboard data.' }, { status: 500 });
   }
 }
