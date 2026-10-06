@@ -1,0 +1,24 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3D6DB"/>
+      <stop offset="1" stop-color="#F9EFEA"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F4D35E"/>
+      <stop offset="1" stop-color="#C9A227"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="512" fill="url(#bg)"/>
+  <path d="M230 365L512 175L794 365" stroke="url(#gold)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M305 365H719V690C719 735 681 772 636 772H388C343 772 305 735 305 690V365Z" fill="#0E1B2A"/>
+  <path d="M486 352H538V768H486V352Z" fill="#F7F1E7"/>
+  <path d="M380 456L512 285L644 456" stroke="#F7F1E7" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M465 380C465 324 502 280 557 280C613 280 650 324 650 380V433H465V380Z" fill="#F7F1E7"/>
+  <path d="M460 500C460 463 490 432 528 432H596C634 432 664 463 664 500V648C664 686 634 716 596 716H528C490 716 460 686 460 648V500Z" fill="#0E1B2A"/>
+  <path d="M517 461L486 518L554 560L617 516L594 460L517 461Z" fill="#F3D6DB"/>
+  <path d="M572 442C632 456 678 499 690 564C672 562 650 568 626 583C594 603 573 632 564 670C552 596 512 494 572 442Z" fill="#F3D6DB"/>
+  <path d="M458 587C426 570 388 573 356 600C341 611 327 626 316 644C365 617 408 602 458 587Z" fill="#F3D6DB"/>
+  <text x="512" y="750" text-anchor="middle" font-family="Georgia, serif" font-size="190" font-weight="700" fill="#0E1B2A" letter-spacing="-18">HR</text>
+  <text x="512" y="860" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#C9A227">HOUSE OF RHODY</text>
+</svg>

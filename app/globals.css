@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --rhody-gold: #c9a227;
+  --rhody-yellow: #f4d35e;
+  --rhody-cream: #f7f1e7;
+  --rhody-blush: #efc9d1;
+  --rhody-brown: #4a2e1f;
+  --rhody-blue: #0f2232;
+  --rhody-navy: #0e1b2a;
+  --rhody-black: #121212;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--rhody-cream);
+  color: var(--rhody-navy);
+  font-family: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid rgba(14, 27, 42, 0.15);
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--rhody-gold);
+  box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
+}
+
+.font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+.section-shell {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
